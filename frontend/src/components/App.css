@@ -1,0 +1,42 @@
+.app-container {
+    width: 345px;
+    height: 600px;
+    font-family: sans-serif;
+  }
+  
+  .error-message {
+    padding: 20px;
+    text-align: center;
+    color: red;
+  }
+  
+  .button-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px;
+    margin-top: 10px;
+  }
+  
+  .filled-button {
+    border-radius: 8px;
+    padding: 10px;
+    width: 135px;
+    height: 33px;
+    font-size: 12px;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .gauge-wrapper {
+    display: flex;
+    justify-content: center;
+  }
+  
+  .emoji-wrapper {
+    margin-bottom: 10px;
+  }
+  
+  .summary-box-wrapper {
+    padding: 0 12px;
+  }
+  

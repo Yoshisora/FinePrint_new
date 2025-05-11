@@ -1,0 +1,41 @@
+{
+  "manifest_version": 3,
+  "name": "Terms & Conditions Parser",
+  "version": "1.0",
+  "description": "Scans webpages for Terms and Conditions and lets you summarize them.",
+  "icons": {
+  "16": "icons/icon16_crisper.png",
+  "48": "icons/icon48_crisper.png",
+  "128": "icons/icon128_crisper.png"
+   },
+  "action": {
+    "default_popup": "index.html",
+    "default_icon": {
+      "16": "icons/icon16_crisper.png",
+      "48": "icons/icon48_crisper.png",
+      "128": "icons/icon128_crisper.png"
+    }
+  },
+
+  "permissions": ["storage", "scripting", "activeTab", "notifications"],
+  "host_permissions": ["<all_urls>"],
+
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["termsScraper.js"],
+      "run_at": "document_idle"
+    }
+  ],
+
+  "background": {
+    "service_worker": "background.js"
+  },
+
+  "web_accessible_resources": [
+    {
+      "resources": ["termsScraper.js"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}

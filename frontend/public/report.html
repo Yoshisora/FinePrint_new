@@ -1,0 +1,91 @@
+<!-- public/report.html -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Full Summary</title>
+  <link href="https://fonts.googleapis.com/css2?family=Jost:wght@800&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --green: #13B756;
+      --light-green: #8BC33C;
+      --white: #ffffff;
+      --black: #000000;
+      --yellow: #FFC300;
+      --orange: #F97127;
+      --red: #FB4245;
+      --info: #17a2b8;
+      --soft-red: #FFDEDE;
+      --soft-orange: #FFD8C3;
+      --soft-yellow: #FFF1C3;
+      --soft-light-green: #D3E4BA;
+      --soft-green: #B0E4C5;
+      --jost: 'Jost';
+    }
+
+    html,
+    body {
+      background: var(--white);
+      /* color: var(--black); */
+      font-family: var(--jost), sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    .full-summary-container {
+      padding: 0px 20px 20px 20px;
+    }
+
+    .fineprint-title {
+      font-weight: 900;
+      font-size: 64px;
+    }
+
+    .fineprint-title span {
+      color: #00BBFF;
+    }
+
+    .last-report {
+      font-size: 1.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .gauge-wrapper {
+      margin: 20px 0;
+    }
+
+    .terms-section p {
+      white-space: pre-wrap;
+      margin-top: 10px;
+    }
+
+    @keyframes skeleton-loading {
+      0% {
+        background-position: -200px 0;
+      }
+
+      100% {
+        background-position: calc(200px + 100%) 0;
+      }
+    }
+
+    .react-loading-skeleton {
+      background-color: #e0e0e0;
+      background-image: linear-gradient(90deg, #e0e0e0, #f0f0f0, #e0e0e0);
+      background-size: 200px 100%;
+      background-repeat: no-repeat;
+      display: block;
+      line-height: 1;
+      border-radius: 4px;
+      animation: skeleton-loading 1.2s ease-in-out infinite;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="root"></div>
+</body>
+
+</html>
