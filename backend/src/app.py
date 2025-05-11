@@ -12,17 +12,24 @@ _mongo = Mongo_connect()
 
 @app.route('/text', methods=['POST'])
 def text():
+    print("/text called")
     data = request.get_json()
+    print(data)
     if not data or 'text' not in data or 'site' not in data:
         return jsonify({'error': 'Invalid data'}), 400
     
     site_key = data['site']
     tos_text = data['text']
 
-    term_doc = _mongo.getTerms(site_key)
-    if term_doc is None:
+    if not site_key or not tos_text:
+        return jsonify({'error': 'Empty site or text'}), 400
+
+    term_doc_obj = _mongo.getTerms(site_key)
+    if term_doc_obj is None:
         term_doc = _llm.processText(tos_text)
         _mongo.putTerms(site_key, term_doc)
+    else:
+        term_doc = term_doc_obj['data']
 
     print(f"Received data for site: {site_key}")
 
@@ -38,6 +45,9 @@ def putreview():
     site_key = data['site']
     review_text = data['review']
     
+    if not site_key or not review_text:
+        return jsonify({'error': 'Empty site or text'}), 400
+    
     _mongo.putReviews(site_key, review_text)
 
     print(f"Received review for site: {site_key}")
@@ -51,10 +61,13 @@ def getreviews():
         return jsonify({'error': 'No site provided'}), 400
     
     site_key = data['site']
+
+    if not site_key:
+        return jsonify({'error': 'Empty site'}), 400
     
     reviews = _mongo.getReviews(site_key)
 
-    reviews_list = list(reviews)
+    reviews_list = [item['data'] for item in reviews]
 
     print(f"getting reviews for site: {site_key}")
 

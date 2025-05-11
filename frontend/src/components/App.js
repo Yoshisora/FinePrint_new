@@ -44,13 +44,13 @@ const App = () => {
     } else {
       chrome.storage.local.get(["termsText", "company"], (result) => {
         if (result.termsText?.trim()) {
-          fetch("http://localhost:5000/text", {
+          fetch("http://127.0.0.1:5000/text", {
             method: "POST",
             headers: {
               "Content-Type": "application/json"
             },
             body: JSON.stringify({
-              text: "A. INTRODUCTION\nThis Agreement governs your use of Apple’s services..."
+              'text': "A. INTRODUCTION\nThis Agreement governs your use of Apple’s services..."
             })
           })
             .then(response => {

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import GaugeWrapper from "./gauge";
+import sendText from "../apis/sendText";
 
 const FullSummary = ({ risk_score }) => {
   const [termsText, setTermsText] = useState("");
@@ -12,8 +13,23 @@ const FullSummary = ({ risk_score }) => {
       if (result.gptResponse?.risk !== undefined) setRiskScore(result.gptResponse.risk);
       if (result.company) setCompanyName(result.company);
     });
+
+
+    fetchData();
   }, []);
 
+    const fetchData = async () => {
+        try {
+          const res = await sendText("testtext", "testsite");
+          console.log(res.data);
+        } catch (err) {
+            if (err.response) {
+                console.log(err.response.data); 
+              } else {
+                console.error("Network or unexpected error", err);
+              }
+        }
+      };
   return (
     <div style={{ padding: "20px", fontFamily: "sans-serif" }}>
       {/* Title */}
