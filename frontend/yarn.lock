@@ -4903,7 +4903,7 @@ process@^0.11.10:
   resolved "https://registry.yarnpkg.com/process/-/process-0.11.10.tgz#7332300e840161bda3e69a1d1d91a7d4bc16f182"
   integrity sha512-cdGef/drWFoydD1JsMzuFf8100nZl+GT+yacc2bEced5f9Rjk4z+WtFUTBu9PhOi9j/jfmBPu0mMEY4wIdAF8A==
 
-prop-types@^15.6.0, prop-types@^15.6.1, prop-types@^15.8.1:
+prop-types@^15.6.1, prop-types@^15.8.1:
   version "15.8.1"
   resolved "https://registry.yarnpkg.com/prop-types/-/prop-types-15.8.1.tgz#67d87bf1a694f48435cf332c24af10214a3140b5"
   integrity sha512-oj87CgZICdulUohogVAR7AjlC0327U4el4L6eAvOqCeudMDVU0NThNaV+b9Df4dXgSP1gXMTnPdhfe/2qDH5cg==
@@ -4983,13 +4983,6 @@ react-content-loader@^7.0.2:
   version "7.0.2"
   resolved "https://registry.yarnpkg.com/react-content-loader/-/react-content-loader-7.0.2.tgz#5d5e0f723cb937db88f9fec1c5b0651cd301c42e"
   integrity sha512-773S98JTyC8VB2nu7LXUhpHx8tZMieGxMcx3qTe7IkohT6Br7d9AXnIXs/wQ6IhlUdKQcw6JLKk1QKigYCWDRA==
-
-react-delay-render@^0.1.2:
-  version "0.1.2"
-  resolved "https://registry.yarnpkg.com/react-delay-render/-/react-delay-render-0.1.2.tgz#f771003044a3772e8ff11084577633e34f3e9a6f"
-  integrity sha512-OB+by1CMwakv8OHl3qvInb6ReA1NydI1AEKNaESMRVJnmfylolH5S4m1nZV65yVqBfZLEwjx33L3J4YTM1p0oA==
-  dependencies:
-    prop-types "^15.6.0"
 
 react-dom@^18.2.0:
   version "18.2.0"
