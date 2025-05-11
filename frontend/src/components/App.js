@@ -43,7 +43,7 @@ const App = () => {
       setLoading(false);
     } else {
       chrome.storage.local.get(["termsText", "company"], (result) => {
-        if (result.termsText?.trim()) {
+        if (result.termsText?.trim()) {     //!!!!!REPLACE THE FETCH WITH THE FUNCTION I WROTE
           fetch("http://127.0.0.1:5000/text", {
             method: "POST",
             headers: {
