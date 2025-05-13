@@ -5,7 +5,9 @@ import sendText from "../apis/sendText";
 const FullSummary = ({ risk_score }) => {
   const [termsText, setTermsText] = useState("");
   const [companyName, setCompanyName] = useState("");
+  const [report, setReport] = useState(null);
   const lastScannedDate = new Date().toLocaleDateString();
+
 
   useEffect(() => {
     chrome.storage.local.get(["termsText", "gptResponse", "company"], (result) => {
@@ -15,13 +17,18 @@ const FullSummary = ({ risk_score }) => {
     });
 
 
-    fetchData();
+    fetchData().then((res)=> {
+        console.log(res);
+        setReport(res);
+    });
+    
   }, []);
 
     const fetchData = async () => {
         try {
-          const res = await sendText("testtext", "testsite");
-          console.log(res.data);
+            const res = await sendText("testtext", "testsite");
+            console.log(res.data);
+            return res.data.data;
         } catch (err) {
             if (err.response) {
                 console.log(err.response.data); 
@@ -55,7 +62,47 @@ const FullSummary = ({ risk_score }) => {
         </div>
       </div>
 
-      {/* Terms Section */}
+        {/* {report?.user_data && report?.limited_liability && (
+        <div style={{ marginBottom: "10px" }}>
+            <strong>
+            Privacy & Tracking: {report.user_data.risk_score + report.limited_liability.risk_score} / 20
+            </strong>
+            <ul style={{ marginTop: "4px", paddingLeft: "16px" }}>
+            <strong>Quote: {report.user_data.quote}</strong>
+            <li>{report.user_data.explanation}</li>
+
+            <strong>Quote: {report.limited_liability.quote}</strong>
+            <li>{report.limited_liability.explanation}</li>
+            </ul>
+        </div>
+        )}
+
+        {report?.licence_to_use_user_content && report?.suspension_of_service && (
+        <div style={{ marginBottom: "10px" }}>
+            <strong>
+            Service Terms: {report.licence_to_use_user_content.risk_score + report.suspension_of_service.risk_score} / 20
+            </strong>
+            <ul style={{ marginTop: "4px", paddingLeft: "16px" }}>
+            <strong>Quote: {report.licence_to_use_user_content.quote}</strong>
+            <li>{report.licence_to_use_user_content.explanation}</li>
+
+            <strong>Quote: {report.suspension_of_service.quote}</strong>
+            <li>{report.suspension_of_service.explanation}</li>
+            </ul>
+        </div>
+        )}
+
+        {report?.renewal_of_service && (
+        <div style={{ marginBottom: "10px" }}>
+            <strong>
+            Subscriptions & Renewals: {report.renewal_of_service.risk_score} / 10
+            </strong>
+            <ul style={{ marginTop: "4px", paddingLeft: "16px" }}>
+            <strong>Quote: {report.renewal_of_service.quote}</strong>
+            <li>{report.renewal_of_service.explanation}</li>
+            </ul>
+        </div>
+        )} */}
       <section style={{ marginTop: "30px" }}>
         <h3 style={{ fontSize: "20px", marginBottom: "10px" }}>Raw Terms:</h3>
         <p style={{ whiteSpace: "pre-wrap", lineHeight: "1.5" }}>{termsText}</p>

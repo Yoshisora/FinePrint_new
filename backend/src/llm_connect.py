@@ -9,11 +9,12 @@ class LLM_Connect():
     
     def processText(self, text):
         USER = '''
-        Read the terms of service document carefully and analyze the risks involved in each category.
-        In each category, give me a risk score in numbers
-        from 0 to 5, with 0 being the safest, and 5 being the most dangerous. 
-        Then explain the risks involved. 
+        Read the terms of service document carefully and analyze the risks involved in each item.
+        In each item, give me a risk score in numbers from 0 to 10,
+        with 0 being the safest, and 10 being the most dangerous. 
+        Then explain the risks involved concisely. 
         Then give me the exact quoted clauses in the document that describes the risk.
+        Ensure that the risk score is a number ranging from 0 to 10.
         Here is the document: 
         '''
 

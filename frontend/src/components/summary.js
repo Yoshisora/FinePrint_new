@@ -33,10 +33,10 @@ const SummaryBox = ({ termsText, bgColor }) => {
       {/* Privacy & Tracking */}
       {(termsText?.user_data || termsText?.limited_liability) && (
         <div style={{ marginBottom: "10px" }}>
-          <strong>Privacy & Tracking</strong>
+          <strong>Privacy & Tracking: {termsText.user_data.risk_score + termsText.limited_liability.risk_score} / 20</strong>
           <ul style={{ marginTop: "4px", paddingLeft: "16px" }}>
-            {termsText.user_data && <li>{termsText.user_data}</li>}
-            {termsText.limited_liability && <li>{termsText.limited_liability}</li>}
+            {termsText.user_data && <li>{termsText.user_data.explanation}</li>}
+            {termsText.limited_liability && <li>{termsText.limited_liability.explanation}</li>}
           </ul>
         </div>
       )}
@@ -44,13 +44,13 @@ const SummaryBox = ({ termsText, bgColor }) => {
       {/* Service Terms */}
       {(termsText?.licence_to_use_user_content || termsText?.suspension_of_service) && (
         <div style={{ marginBottom: "10px" }}>
-          <strong>Service Terms</strong>
+          <strong>Service Terms: {termsText.licence_to_use_user_content.risk_score + termsText.suspension_of_service.risk_score} / 20</strong>
           <ul style={{ marginTop: "4px", paddingLeft: "16px" }}>
             {termsText.licence_to_use_user_content && (
-              <li>{termsText.licence_to_use_user_content}</li>
+              <li>{termsText.licence_to_use_user_content.explanation}</li>
             )}
             {termsText.suspension_of_service && (
-              <li>{termsText.suspension_of_service}</li>
+              <li>{termsText.suspension_of_service.explanation}</li>
             )}
           </ul>
         </div>
@@ -59,9 +59,9 @@ const SummaryBox = ({ termsText, bgColor }) => {
       {/* Subscriptions & Renewals */}
       {termsText?.renewal_of_service && (
         <div style={{ marginBottom: "10px" }}>
-          <strong>Subscriptions & Renewals</strong>
+          <strong>Subscriptions & Renewals: {termsText.renewal_of_service.risk_score} / 10</strong>
           <ul style={{ marginTop: "4px", paddingLeft: "16px" }}>
-            <li>{termsText.renewal_of_service}</li>
+            <li>{termsText.renewal_of_service.explanation}</li>
           </ul>
         </div>
       )}

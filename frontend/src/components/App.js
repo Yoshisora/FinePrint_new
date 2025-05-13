@@ -5,6 +5,7 @@ import GaugeWrapper from "./gauge";
 import Emoji from "./emoji";
 import FullSummary from "./FullSummary";
 import BulletList from "./bulletList";
+import sendText from "../apis/sendText";
 
 const App = () => {
   const isReportPage = window.location.pathname.includes("report.html");
@@ -15,7 +16,7 @@ const App = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const isDevelopmentMode = true; // Set to false when deploying
+  const isDevelopmentMode = false;
 
   function assign_color(score) {
     if (typeof score !== "number" || score < 0 || score > 100) return "#929292";
@@ -35,29 +36,44 @@ const App = () => {
     "#929292": "#DEE1E6"
   };
 
-  const fetchData = async (tosText, siteKey) => {
+//   const fetchData = async (tosText, siteKey) => {
+//     try {
+//       const response = await fetch("http://127.0.0.1:5000/text", {
+//         method: "POST",
+//         headers: {
+//           "Content-Type": "application/json"
+//         },
+//         body: JSON.stringify({
+//           text: tosText,
+//           site: siteKey
+//         })
+//       });
+
+//       if (!response.ok) {
+//         throw new Error("Network response was not ok");
+//       }
+
+//       const data = await response.json();
+//       console.log("Server response:", data);
+//       return data;
+//     } catch (error) {
+//       console.error("Error posting to /text:", error);
+//       throw error;
+//     }
+//   };
+
+  const fetchData = async (text, site) => {
     try {
-      const response = await fetch("http://127.0.0.1:5000/text", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          text: tosText,
-          site: siteKey
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
-      }
-
-      const data = await response.json();
-      console.log("Server response:", data);
-      return data;
-    } catch (error) {
-      console.error("Error posting to /text:", error);
-      throw error;
+        const res = await sendText(text, site);
+        console.log(res.data);
+        return res.data;
+    } catch (err) {
+        if (err.response) {
+            console.log(err.response.data); 
+        } 
+        else {
+            console.error("Network or unexpected error", err);
+        }
     }
   };
 
@@ -74,11 +90,12 @@ const App = () => {
       setCompanyName("FinePrint");
       setLoading(false);
     } else {
+        console.log("testing...");
       chrome.storage.local.get(["termsText", "company"], (result) => {
         if (result.termsText?.trim()) {
           fetchData(result.termsText, result.company || "unknown")
             .then(data => {
-              setTermsText(data.data); // set the "data" field from server response
+              setTermsText(data.data); 
               setCompanyName(result.company || "unknown");
             })
             .catch(err => {
@@ -99,15 +116,19 @@ const App = () => {
 
   useEffect(() => {
     if (termsText && termsText !== "Loading...") {
-      const mockGPTResponse = { risk: 70 };
-      const risk = mockGPTResponse.risk;
-      setRiskScore(risk);
+        const mockGPTResponse = { risk: 70 };
+        let risk = 0;
 
-      chrome.runtime.sendMessage({
-        type: "SET_BADGE",
-        text: '!',
-        color: assign_color(risk)
-      });
+        for (const [key, value] of Object.entries(termsText)) {
+            risk += value.risk_score * 2;
+        }
+        setRiskScore(risk);
+
+        chrome.runtime.sendMessage({
+            type: "SET_BADGE",
+            text: '!',
+            color: assign_color(risk)
+        });
     }
   }, [termsText]);
 
