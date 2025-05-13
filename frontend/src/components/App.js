@@ -9,13 +9,13 @@ import BulletList from "./bulletList";
 const App = () => {
   const isReportPage = window.location.pathname.includes("report.html");
 
-  const [termsText, setTermsText] = useState("Loading...");
+  const [termsText, setTermsText] = useState(null);
   const [companyName, setCompanyName] = useState(null);
   const [riskScore, setRiskScore] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const isDevelopmentMode = true; // Set this to false when you're done with development
+  const isDevelopmentMode = true; // Set to false when deploying
 
   function assign_color(score) {
     if (typeof score !== "number" || score < 0 || score > 100) return "#929292";
@@ -25,47 +25,64 @@ const App = () => {
     if (score <= 80) return "#F97127";
     return "#FB4245";
   }
-  
+
   const colorMap = {
-    "#13B756": "var(--soft-green)",       // green
-    "#8BC33C": "var(--soft-light-green)", // light-green
-    "#FFC300": "var(--soft-yellow)",      // yellow
-    "#F97127": "var(--soft-orange)",      // orange
-    "#FB4245": "var(--soft-red)",         // red
-    "#929292": "#DEE1E6"                  // fallback/default
+    "#13B756": "var(--soft-green)",
+    "#8BC33C": "var(--soft-light-green)",
+    "#FFC300": "var(--soft-yellow)",
+    "#F97127": "var(--soft-orange)",
+    "#FB4245": "var(--soft-red)",
+    "#929292": "#DEE1E6"
+  };
+
+  const fetchData = async (tosText, siteKey) => {
+    try {
+      const response = await fetch("http://127.0.0.1:5000/text", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          text: tosText,
+          site: siteKey
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+
+      const data = await response.json();
+      console.log("Server response:", data);
+      return data;
+    } catch (error) {
+      console.error("Error posting to /text:", error);
+      throw error;
+    }
   };
 
   useEffect(() => {
-    if (isDevelopmentMode) { // This is so we don't keep calling the API
-      const mockTermsText = "A. INTRODUCTION\nThis Agreement governs your use of Apple’s services...";
+    if (isDevelopmentMode) {
+      const mockTermsText = {
+        licence_to_use_user_content: null,
+        limited_liability: "Apple may modify, suspend, or discontinue the Services...",
+        renewal_of_service: "Subscriptions automatically renew until cancelled.",
+        suspension_of_service: "Apple may terminate this Agreement...",
+        user_data: null
+      };
       setTermsText(mockTermsText);
       setCompanyName("FinePrint");
       setLoading(false);
     } else {
       chrome.storage.local.get(["termsText", "company"], (result) => {
-        if (result.termsText?.trim()) {     //!!!!!REPLACE THE FETCH WITH THE FUNCTION I WROTE
-          fetch("http://127.0.0.1:5000/text", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-              'text': "A. INTRODUCTION\nThis Agreement governs your use of Apple’s services..."
-            })
-          })
-            .then(response => {
-              if (!response.ok) {
-                throw new Error("Network response was not ok");
-              }
-              return response.json();
-            })
+        if (result.termsText?.trim()) {
+          fetchData(result.termsText, result.company || "unknown")
             .then(data => {
-              console.log("Server response:", data);
-              setTermsText(data.received_text);
-              setCompanyName(result.company || "unknown")
+              setTermsText(data.data); // set the "data" field from server response
+              setCompanyName(result.company || "unknown");
             })
-            .catch(error => {
-              console.error("Error posting to /text:", error);
+            .catch(err => {
+              console.error("Error fetching data:", err);
               setError("Failed to load terms and conditions.");
             })
             .finally(() => {
@@ -89,7 +106,7 @@ const App = () => {
       chrome.runtime.sendMessage({
         type: "SET_BADGE",
         text: '!',
-        color: assign_color(mockGPTResponse.risk)
+        color: assign_color(risk)
       });
     }
   }, [termsText]);
@@ -119,13 +136,18 @@ const App = () => {
 
       <div style={{ padding: "0 12px" }}>
         {loading ? (
-          <BulletList/>
+          <BulletList />
         ) : (
           <SummaryBox termsText={termsText} bgColor={assign_color(riskScore ?? 0)} />
         )}
       </div>
 
-      <div style={{ display: "flex", justifyContent: "space-between", padding: "12px", marginTop: "10px" }}>
+      <div style={{
+        display: "flex",
+        justifyContent: "space-between",
+        padding: "12px",
+        marginTop: "10px"
+      }}>
         <button
           onClick={() => console.log("Paste T&C Link")}
           style={{
