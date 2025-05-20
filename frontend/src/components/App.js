@@ -6,6 +6,7 @@ import Emoji from "./emoji";
 import FullSummary from "./FullSummary";
 import BulletList from "./bulletList";
 import sendText from "../apis/sendText";
+import Popup from "./Popup";
 
 const App = () => {
   const isReportPage = window.location.pathname.includes("report.html");
@@ -15,6 +16,9 @@ const App = () => {
   const [riskScore, setRiskScore] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showPopup, setShowPopup] = useState(false);
+  const [inputText, setInputText] = useState("");
+
 
   const isDevelopmentMode = false;
 
@@ -170,7 +174,10 @@ const App = () => {
         marginTop: "10px"
       }}>
         <button
-          onClick={() => console.log("Paste T&C Link")}
+          onClick={() => {
+            setShowPopup(true);
+            console.log("Paste T&C Link");
+          }}
           style={{
             backgroundColor: colorMap[assign_color(riskScore ?? 0)],
             borderRadius: "8px",
@@ -182,7 +189,7 @@ const App = () => {
             cursor: "pointer"
           }}
         >
-          Paste T&C
+          Post Review
         </button>
 
         <button
@@ -203,6 +210,16 @@ const App = () => {
         >
           View Full Report
         </button>
+        {showPopup && (
+          <Popup
+            inputText={inputText}
+            setInputText={setInputText}
+            onClose={() => setShowPopup(false)}
+            onSubmit={() => {
+              console.log("Review submitted:", inputText);
+            }}
+          />
+        )}
       </div>
     </div>
   );
