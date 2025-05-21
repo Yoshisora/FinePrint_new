@@ -18,6 +18,8 @@ const App = () => {
   const [error, setError] = useState(null);
   const [showPopup, setShowPopup] = useState(false);
   const [inputText, setInputText] = useState("");
+  const [ratingValue, setRatingValue] = useState(0);
+
 
 
   const isDevelopmentMode = false;
@@ -137,7 +139,7 @@ const App = () => {
   }, [termsText]);
 
   if (isReportPage) {
-    return <FullSummary risk_score={riskScore ?? 0} />;
+    return <FullSummary risk_score={riskScore ?? 0} termsText={termsText} companyName={companyName} />;
   }
 
   if (error) {
@@ -210,16 +212,21 @@ const App = () => {
         >
           View Full Report
         </button>
+        
         {showPopup && (
           <Popup
             inputText={inputText}
             setInputText={setInputText}
+            ratingValue={ratingValue}
+            setRatingValue={setRatingValue}
             onClose={() => setShowPopup(false)}
             onSubmit={() => {
               console.log("Review submitted:", inputText);
+              console.log("Rating submitted:", ratingValue);
             }}
           />
         )}
+
       </div>
     </div>
   );

@@ -1,112 +1,115 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import GaugeWrapper from "./gauge";
-import sendText from "../apis/sendText";
+import ReviewBox from "./review";
 
-const FullSummary = ({ risk_score }) => {
-  const [termsText, setTermsText] = useState("");
-  const [companyName, setCompanyName] = useState("");
-  const [report, setReport] = useState(null);
+const FullSummary = ({ risk_score, termsText, companyName }) => {
   const lastScannedDate = new Date().toLocaleDateString();
 
-
-  useEffect(() => {
-    chrome.storage.local.get(["termsText", "gptResponse", "company"], (result) => {
-      if (result.termsText) setTermsText(result.termsText);
-      if (result.gptResponse?.risk !== undefined) setRiskScore(result.gptResponse.risk);
-      if (result.company) setCompanyName(result.company);
-    });
-
-
-    fetchData().then((res)=> {
-        console.log(res);
-        setReport(res);
-    });
-    
-  }, []);
-
-    const fetchData = async () => {
-        try {
-            const res = await sendText("testtext", "testsite");
-            console.log(res.data);
-            return res.data.data;
-        } catch (err) {
-            if (err.response) {
-                console.log(err.response.data); 
-              } else {
-                console.error("Network or unexpected error", err);
-              }
-        }
-      };
   return (
     <div style={{ padding: "20px", fontFamily: "sans-serif" }}>
-      {/* Title */}
       <h1 style={{ fontSize: "64px", fontFamily: "var(--jost)", fontWeight: 800 }}>
         Fine<span style={{ color: "#00aaff" }}>Print</span>
       </h1>
 
-      {/* Gauge and Report Info Row */}
       <div style={{ display: "flex", alignItems: "center", gap: "40px", marginTop: "20px" }}>
-        {/* Gauge */}
         <div style={{ flexShrink: 0, paddingBottom: "20px" }}>
           <GaugeWrapper risk_score={risk_score} width={500} height={420} />
         </div>
 
-        {/* Report Info */}
         <div style={{ display: "flex", flexDirection: "column" }}>
           <p style={{ fontSize: "56px", marginTop: "4px", fontFamily: "var(--jost)", fontWeight: 700 }}>
-            {companyName ? companyName : "Not Found"}
+            {companyName || "Unknown"}
           </p>
-          
           <h2 style={{ fontSize: "18px", marginTop: "12px" }}>Last Report:</h2>
           <p style={{ fontSize: "16px", marginTop: "4px" }}>{lastScannedDate}</p>
         </div>
       </div>
 
-        {/* {report?.user_data && report?.limited_liability && (
-        <div style={{ marginBottom: "10px" }}>
+      {/* Wrapped Clause Summary in styled summary box */}
+      <div
+        style={{
+          width: "100%",
+          minHeight: "400px",
+          border: "1px solid #ddd",
+          borderRadius: "8px",
+          padding: "24px",
+          fontFamily: "var(--jost)",
+          boxSizing: "border-box",
+          backgroundColor: "#fff",
+          marginTop: "40px",
+          display: "flex",
+          flexDirection: "column",
+          gap: "20px"
+        }}
+      >
+        {/* Privacy & Tracking */}
+        {(termsText?.user_data || termsText?.limited_liability) && (
+          <div>
             <strong>
-            Privacy & Tracking: {report.user_data.risk_score + report.limited_liability.risk_score} / 20
+              Privacy & Tracking: {(termsText.user_data?.risk_score ?? 0) + (termsText.limited_liability?.risk_score ?? 0)} / 20
             </strong>
-            <ul style={{ marginTop: "4px", paddingLeft: "16px" }}>
-            <strong>Quote: {report.user_data.quote}</strong>
-            <li>{report.user_data.explanation}</li>
-
-            <strong>Quote: {report.limited_liability.quote}</strong>
-            <li>{report.limited_liability.explanation}</li>
+            <ul style={{ paddingLeft: "20px", marginTop: "4px" }}>
+              {termsText.user_data && <li>{termsText.user_data.explanation}</li>}
+              {termsText.limited_liability && <li>{termsText.limited_liability.explanation}</li>}
             </ul>
-        </div>
+          </div>
         )}
 
-        {report?.licence_to_use_user_content && report?.suspension_of_service && (
-        <div style={{ marginBottom: "10px" }}>
+        {/* Service Terms */}
+        {(termsText?.licence_to_use_user_content || termsText?.suspension_of_service) && (
+          <div>
             <strong>
-            Service Terms: {report.licence_to_use_user_content.risk_score + report.suspension_of_service.risk_score} / 20
+              Service Terms: {(termsText.licence_to_use_user_content?.risk_score ?? 0) + (termsText.suspension_of_service?.risk_score ?? 0)} / 20
             </strong>
-            <ul style={{ marginTop: "4px", paddingLeft: "16px" }}>
-            <strong>Quote: {report.licence_to_use_user_content.quote}</strong>
-            <li>{report.licence_to_use_user_content.explanation}</li>
-
-            <strong>Quote: {report.suspension_of_service.quote}</strong>
-            <li>{report.suspension_of_service.explanation}</li>
+            <ul style={{ paddingLeft: "20px", marginTop: "4px" }}>
+              {termsText.licence_to_use_user_content && (
+                <li>{termsText.licence_to_use_user_content.explanation}</li>
+              )}
+              {termsText.suspension_of_service && (
+                <li>{termsText.suspension_of_service.explanation}</li>
+              )}
             </ul>
-        </div>
+          </div>
         )}
 
-        {report?.renewal_of_service && (
-        <div style={{ marginBottom: "10px" }}>
+        {/* Subscriptions & Renewals */}
+        {termsText?.renewal_of_service && (
+          <div>
             <strong>
-            Subscriptions & Renewals: {report.renewal_of_service.risk_score} / 10
+              Subscriptions & Renewals: {termsText.renewal_of_service.risk_score} / 10
             </strong>
-            <ul style={{ marginTop: "4px", paddingLeft: "16px" }}>
-            <strong>Quote: {report.renewal_of_service.quote}</strong>
-            <li>{report.renewal_of_service.explanation}</li>
+            <ul style={{ paddingLeft: "20px", marginTop: "4px" }}>
+              <li>{termsText.renewal_of_service.explanation}</li>
             </ul>
-        </div>
-        )} */}
-      <section style={{ marginTop: "30px" }}>
-        <h3 style={{ fontSize: "20px", marginBottom: "10px" }}>Raw Terms:</h3>
-        <p style={{ whiteSpace: "pre-wrap", lineHeight: "1.5" }}>{termsText}</p>
-      </section>
+          </div>
+        )}
+
+        {/* Fallback if nothing found */}
+        {!termsText ||
+          (!termsText.user_data &&
+            !termsText.limited_liability &&
+            !termsText.licence_to_use_user_content &&
+            !termsText.suspension_of_service &&
+            !termsText.renewal_of_service) && (
+            <p style={{ fontStyle: "italic", color: "#555" }}>
+              No notable terms were found.
+            </p>
+          )}
+      </div>
+
+      {/* ReviewBox container */}
+      <div
+        style={{
+          marginTop: "40px",
+          padding: "16px",
+          border: "1px solid #ddd",
+          borderRadius: "8px",
+          backgroundColor: "#fff",
+          boxSizing: "border-box"
+        }}
+      >
+        <ReviewBox />
+      </div>
     </div>
   );
 };
