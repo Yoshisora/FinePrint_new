@@ -83,7 +83,7 @@ const ReviewBox = ({site}) => {
           height: "120px",
           padding: "12px",
           fontSize: "14px",
-          fontFamily: "var(--jost)",
+          fontFamily: "Arial",
           border: "1px solid #ccc",
           borderRadius: "6px",
           resize: "none",

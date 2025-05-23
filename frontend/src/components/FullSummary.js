@@ -1,13 +1,15 @@
-import React from "react";
+import React, {useEffect, useState} from "react";
 import GaugeWrapper from "./gauge";
 import ReviewBox from "./review";
-
+import Rating from "@mui/material/Rating";
 import getReviews from "../apis/getReviews";
 const FullSummary = ({ risk_score, termsText, companyName}) => {
+  const [reviews, setReviews] = useState([]);
     const loadReviews = async (site) => {
         try {
             const res = await getReviews(site);
-            return res.data;
+            console.log("Fetched reviews:", res.data.data);
+            setReviews(res.data.data);
         } catch (err) {
             if (err.response) {
                 console.log(err.response.data); 
@@ -17,11 +19,12 @@ const FullSummary = ({ risk_score, termsText, companyName}) => {
             }
         }
     };
-    if (companyName) {
-        loadReviews(companyName).then((data) => {
-            console.log(data);
-        });
-    }
+    useEffect(() => {
+      if (companyName) {
+        loadReviews(companyName);
+      }
+    }, [companyName]);
+
 
     const lastScannedDate = new Date().toLocaleDateString();
   return (
@@ -129,7 +132,22 @@ const FullSummary = ({ risk_score, termsText, companyName}) => {
           boxSizing: "border-box"
         }}
       >
-        <ReviewBox site={companyName}/>
+        <ReviewBox site={companyName} onReviewSubmit={() => loadReviews(companyName)} />
+
+        {reviews.length > 0 && (
+          <div style={{ marginTop: "40px" }}>
+            <h2>User Reviews</h2>
+            <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+              {reviews.map((review, index) => (
+                <div key={index} style={{ padding: "12px", border: "1px solid #ccc", borderRadius: "8px", backgroundColor: "#fafafa" }}>
+                  <Rating value={Math.max(0, review.rating)} readOnly /> {/* -1 becomes 0 */}
+                  <p style={{fontFamily: "Arial", fontSize: "16px"}}>{review.review}</p>
+                  <p style={{fontFamily: "Arial"}}><strong>Date:</strong> {review.date}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
