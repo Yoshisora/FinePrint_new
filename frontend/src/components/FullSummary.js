@@ -20,8 +20,8 @@ const FullSummary = ({ risk_score, termsText, companyName }) => {
           <p style={{ fontSize: "56px", marginTop: "4px", fontFamily: "var(--jost)", fontWeight: 700 }}>
             {companyName || "Unknown"}
           </p>
-          <h2 style={{ fontSize: "18px", marginTop: "12px" }}>Last Report:</h2>
-          <p style={{ fontSize: "16px", marginTop: "4px" }}>{lastScannedDate}</p>
+          <h2 style={{ fontSize: "36px", marginTop: "12px" }}>Last Report:</h2>
+          <p style={{ fontSize: "32px", marginTop: "4px" }}>{lastScannedDate}</p>
         </div>
       </div>
 
@@ -31,9 +31,11 @@ const FullSummary = ({ risk_score, termsText, companyName }) => {
           width: "100%",
           minHeight: "400px",
           border: "1px solid #ddd",
+          borderTop: "66px solid #00aaff",
           borderRadius: "8px",
           padding: "24px",
-          fontFamily: "var(--jost)",
+          fontFamily: "Arial",
+          fontSize: "16px",
           boxSizing: "border-box",
           backgroundColor: "#fff",
           marginTop: "40px",
