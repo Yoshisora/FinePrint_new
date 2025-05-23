@@ -2,9 +2,28 @@ import React from "react";
 import GaugeWrapper from "./gauge";
 import ReviewBox from "./review";
 
-const FullSummary = ({ risk_score, termsText, companyName }) => {
-  const lastScannedDate = new Date().toLocaleDateString();
+import getReviews from "../apis/getReviews";
+const FullSummary = ({ risk_score, termsText, companyName}) => {
+    const loadReviews = async (site) => {
+        try {
+            const res = await getReviews(site);
+            return res.data;
+        } catch (err) {
+            if (err.response) {
+                console.log(err.response.data); 
+            } 
+            else {
+                console.error("Network or unexpected error", err);
+            }
+        }
+    };
+    if (companyName) {
+        loadReviews(companyName).then((data) => {
+            console.log(data);
+        });
+    }
 
+    const lastScannedDate = new Date().toLocaleDateString();
   return (
     <div style={{ padding: "20px", fontFamily: "sans-serif" }}>
       <h1 style={{ fontSize: "64px", fontFamily: "var(--jost)", fontWeight: 800 }}>
@@ -108,7 +127,7 @@ const FullSummary = ({ risk_score, termsText, companyName }) => {
           boxSizing: "border-box"
         }}
       >
-        <ReviewBox />
+        <ReviewBox site={companyName}/>
       </div>
     </div>
   );

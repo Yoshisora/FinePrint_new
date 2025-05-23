@@ -14,7 +14,6 @@ _mongo = Mongo_connect()
 def text():
     print("/text called")
     data = request.get_json()
-    print(data)
     if not data or 'text' not in data or 'site' not in data:
         return jsonify({'error': 'Invalid data'}), 400
     
@@ -39,16 +38,24 @@ def text():
 @app.route('/putreview', methods=['POST'])
 def putreview():
     data = request.get_json()
+    print(data)
     if not data or 'review' not in data or 'site' not in data:
         return jsonify({'error': 'Invalid data'}), 400
     
     site_key = data['site']
     review_text = data['review']
-    
+    rating = data['rating']
+    date = data['date']
+    dataObj = {
+        'review': review_text,
+        'rating': rating,
+        'date': date
+    }
+
     if not site_key or not review_text:
         return jsonify({'error': 'Empty site or text'}), 400
     
-    _mongo.putReviews(site_key, review_text)
+    _mongo.putReviews(site_key, dataObj)
 
     print(f"Received review for site: {site_key}")
 
