@@ -7,6 +7,8 @@ import FullSummary from "./FullSummary";
 import BulletList from "./bulletList";
 import sendText from "../apis/sendText";
 import Popup from "./Popup";
+import putReview from "../apis/putReviews";
+import getReviews from "../apis/getReviews";
 
 const App = () => {
   const isReportPage = window.location.pathname.includes("report.html");
@@ -18,7 +20,9 @@ const App = () => {
   const [error, setError] = useState(null);
   const [showPopup, setShowPopup] = useState(false);
   const [inputText, setInputText] = useState("");
-  const [ratingValue, setRatingValue] = useState(0);
+  const [ratingValue, setRatingValue] = useState(-1);
+  const [reviewed, setReviewed] = useState(false);
+  const [reviews, setReviews] = useState(null);
 
 
 
@@ -42,36 +46,37 @@ const App = () => {
     "#929292": "#DEE1E6"
   };
 
-//   const fetchData = async (tosText, siteKey) => {
+  const submitReview =  async (review, rating, site) => {
+    try {
+        const res = await putReview(review, rating, site);
+        return res.data;
+    } catch (err) {
+        if (err.response) {
+            console.log(err.response.data); 
+        } 
+        else {
+            console.error("Network or unexpected error", err);
+        }
+    }
+  };
+
+//   const loadReviews = async (site) => {
 //     try {
-//       const response = await fetch("http://127.0.0.1:5000/text", {
-//         method: "POST",
-//         headers: {
-//           "Content-Type": "application/json"
-//         },
-//         body: JSON.stringify({
-//           text: tosText,
-//           site: siteKey
-//         })
-//       });
-
-//       if (!response.ok) {
-//         throw new Error("Network response was not ok");
-//       }
-
-//       const data = await response.json();
-//       console.log("Server response:", data);
-//       return data;
-//     } catch (error) {
-//       console.error("Error posting to /text:", error);
-//       throw error;
+//         const res = await getReviews(site);
+//         return res.data;
+//     } catch (err) {
+//         if (err.response) {
+//             console.log(err.response.data); 
+//         } 
+//         else {
+//             console.error("Network or unexpected error", err);
+//         }
 //     }
 //   };
 
   const fetchData = async (text, site) => {
     try {
         const res = await sendText(text, site);
-        console.log(res.data);
         return res.data;
     } catch (err) {
         if (err.response) {
@@ -122,7 +127,6 @@ const App = () => {
 
   useEffect(() => {
     if (termsText && termsText !== "Loading...") {
-        const mockGPTResponse = { risk: 70 };
         let risk = 0;
 
         for (const [key, value] of Object.entries(termsText)) {
@@ -139,7 +143,7 @@ const App = () => {
   }, [termsText]);
 
   if (isReportPage) {
-    return <FullSummary risk_score={riskScore ?? 0} termsText={termsText} companyName={companyName} />;
+    return <FullSummary risk_score={riskScore ?? 0} termsText={termsText} companyName={companyName}/>;
   }
 
   if (error) {
@@ -221,9 +225,20 @@ const App = () => {
             setRatingValue={setRatingValue}
             onClose={() => setShowPopup(false)}
             onSubmit={() => {
-              console.log("Review submitted:", inputText);
-              console.log("Rating submitted:", ratingValue);
+                submitReview(inputText, ratingValue, companyName)
+                .then(data => {
+                    if (data) {
+                        console.log("Review submitted:", inputText);
+                        setReviewed(true);
+                    }
+                })
+                .catch(err => {
+                    console.error("Error submitting review:", err);
+                })
+                .finally(() => {
+                });
             }}
+            reviewed={reviewed}
           />
         )}
 

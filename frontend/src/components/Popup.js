@@ -1,7 +1,7 @@
 import React from "react";
 import Rating from "@mui/material/Rating";
 
-const Popup = ({ inputText, setInputText, ratingValue, setRatingValue, onClose, onSubmit }) => {
+const Popup = ({ inputText, setInputText, ratingValue, setRatingValue, onClose, onSubmit, reviewed}) => {
   return (
     <div style={{
       position: "absolute",
@@ -46,11 +46,18 @@ const Popup = ({ inputText, setInputText, ratingValue, setRatingValue, onClose, 
           Cancel
         </button>
         <button
-          onClick={() => {
-            onSubmit();
-            onClose();
-          }}
-          style={{ padding: "5px 10px", fontSize: "12px" }}
+            onClick={() => {
+                if (!reviewed) {
+                onSubmit();
+                onClose();
+                }
+            }}
+            title={reviewed ? "You have already submitted a review." : ""}
+            disabled={reviewed}
+            style={{
+                padding: "5px 10px",
+                fontSize: "12px"
+            }}
         >
           Submit
         </button>
