@@ -17,7 +17,7 @@
     }
   },
 
-  "permissions": ["storage", "scripting", "activeTab", "notifications"],
+  "permissions": ["storage", "scripting", "activeTab", "notifications", "tabs"],
   "host_permissions": ["<all_urls>"],
 
   "content_scripts": [

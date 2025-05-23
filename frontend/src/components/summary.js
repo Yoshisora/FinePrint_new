@@ -7,10 +7,30 @@ const SummaryBox = ({ termsText, bgColor }) => {
     "#FFC300": "var(--soft-yellow)",
     "#F97127": "var(--soft-orange)",
     "#FB4245": "var(--soft-red)",
-    "#929292": "#DEE1E6"
+    "#929292": "#DEE1E6",
   };
 
   const softColor = colorMap[bgColor] || "var(--white)";
+
+  const clauseCategories = [
+    {
+      title: "Privacy & Tracking",
+      keys: ["user_data", "limited_liability"],
+      maxScore: 20,
+    },
+    {
+      title: "Service Terms",
+      keys: ["licence_to_use_user_content", "suspension_of_service"],
+      maxScore: 20,
+    },
+    {
+      title: "Subscriptions & Renewals",
+      keys: ["renewal_of_service"],
+      maxScore: 10,
+    },
+  ];
+
+  const renderItem = (item) => <li>{item.explanation}</li>;
 
   return (
     <div
@@ -23,56 +43,41 @@ const SummaryBox = ({ termsText, bgColor }) => {
         maxHeight: "250px",
         overflowY: "auto",
         fontSize: "12px",
-        boxSizing: "border-box"
+        boxSizing: "border-box",
       }}
     >
       <strong style={{ fontSize: "14px", display: "block", marginBottom: "6px" }}>
         Important
       </strong>
 
-      {/* Privacy & Tracking */}
-      {(termsText?.user_data || termsText?.limited_liability) && (
-        <div style={{ marginBottom: "10px" }}>
-          <strong>Privacy & Tracking: {termsText.user_data.risk_score + termsText.limited_liability.risk_score} / 20</strong>
-          <ul style={{ marginTop: "4px", paddingLeft: "16px" }}>
-            {termsText.user_data && <li>{termsText.user_data.explanation}</li>}
-            {termsText.limited_liability && <li>{termsText.limited_liability.explanation}</li>}
-          </ul>
-        </div>
-      )}
+      {clauseCategories.map(({ title, keys, maxScore }) => {
+        const relevantItems = keys
+          .map((key) => termsText?.[key])
+          .filter(Boolean);
 
-      {/* Service Terms */}
-      {(termsText?.licence_to_use_user_content || termsText?.suspension_of_service) && (
-        <div style={{ marginBottom: "10px" }}>
-          <strong>Service Terms: {termsText.licence_to_use_user_content.risk_score + termsText.suspension_of_service.risk_score} / 20</strong>
-          <ul style={{ marginTop: "4px", paddingLeft: "16px" }}>
-            {termsText.licence_to_use_user_content && (
-              <li>{termsText.licence_to_use_user_content.explanation}</li>
-            )}
-            {termsText.suspension_of_service && (
-              <li>{termsText.suspension_of_service.explanation}</li>
-            )}
-          </ul>
-        </div>
-      )}
+        if (relevantItems.length === 0) return null;
 
-      {/* Subscriptions & Renewals */}
-      {termsText?.renewal_of_service && (
-        <div style={{ marginBottom: "10px" }}>
-          <strong>Subscriptions & Renewals: {termsText.renewal_of_service.risk_score} / 10</strong>
-          <ul style={{ marginTop: "4px", paddingLeft: "16px" }}>
-            <li>{termsText.renewal_of_service.explanation}</li>
-          </ul>
-        </div>
-      )}
+        const totalScore = relevantItems.reduce(
+          (sum, item) => sum + (item.risk_score ?? 0),
+          0
+        );
 
-      {/* Fallback in case everything is null */}
+        return (
+          <div key={title} style={{ marginBottom: "10px" }}>
+            <strong>
+              {title}: {totalScore} / {maxScore}
+            </strong>
+            <ul style={{ marginTop: "4px", paddingLeft: "16px" }}>
+              {relevantItems.map(renderItem)}
+            </ul>
+          </div>
+        );
+      })}
+
       {!termsText ||
-        (!termsText.user_data &&
-          !termsText.limited_liability &&
-          !termsText.licence_to_use_user_content &&
-          !termsText.suspension_of_service &&
-          !termsText.renewal_of_service) && (
+        clauseCategories.every(({ keys }) =>
+          keys.every((key) => !termsText?.[key])
+        ) && (
           <p style={{ fontStyle: "italic", color: "#555" }}>
             No notable terms were found.
           </p>

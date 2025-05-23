@@ -8,7 +8,6 @@ import BulletList from "./bulletList";
 import sendText from "../apis/sendText";
 import Popup from "./Popup";
 import putReview from "../apis/putReviews";
-import getReviews from "../apis/getReviews";
 
 const App = () => {
   const isReportPage = window.location.pathname.includes("report.html");
@@ -22,9 +21,7 @@ const App = () => {
   const [inputText, setInputText] = useState("");
   const [ratingValue, setRatingValue] = useState(-1);
   const [reviewed, setReviewed] = useState(false);
-  const [reviews, setReviews] = useState(null);
-
-
+  const [url, setUrl] = useState(null);
 
   const isDevelopmentMode = false;
 
@@ -46,45 +43,29 @@ const App = () => {
     "#929292": "#DEE1E6"
   };
 
-  const submitReview =  async (review, rating, site) => {
+  const submitReview = async (review, rating, site) => {
     try {
-        const res = await putReview(review, rating, site);
-        return res.data;
+      const res = await putReview(review, rating, site);
+      return res.data;
     } catch (err) {
-        if (err.response) {
-            console.log(err.response.data); 
-        } 
-        else {
-            console.error("Network or unexpected error", err);
-        }
+      if (err.response) {
+        console.log(err.response.data);
+      } else {
+        console.error("Network or unexpected error", err);
+      }
     }
   };
 
-//   const loadReviews = async (site) => {
-//     try {
-//         const res = await getReviews(site);
-//         return res.data;
-//     } catch (err) {
-//         if (err.response) {
-//             console.log(err.response.data); 
-//         } 
-//         else {
-//             console.error("Network or unexpected error", err);
-//         }
-//     }
-//   };
-
   const fetchData = async (text, site) => {
     try {
-        const res = await sendText(text, site);
-        return res.data;
+      const res = await sendText(text, site);
+      return res.data;
     } catch (err) {
-        if (err.response) {
-            console.log(err.response.data); 
-        } 
-        else {
-            console.error("Network or unexpected error", err);
-        }
+      if (err.response) {
+        console.log(err.response.data);
+      } else {
+        console.error("Network or unexpected error", err);
+      }
     }
   };
 
@@ -99,51 +80,71 @@ const App = () => {
       };
       setTermsText(mockTermsText);
       setCompanyName("FinePrint");
+      setUrl("https://www.google.com");
       setLoading(false);
     } else {
-        console.log("testing...");
-      chrome.storage.local.get(["termsText", "company"], (result) => {
-        if (result.termsText?.trim()) {
-          fetchData(result.termsText, result.company || "unknown")
-            .then(data => {
-              setTermsText(data.data); 
-              setCompanyName(result.company || "unknown");
-            })
-            .catch(err => {
-              console.error("Error fetching data:", err);
-              setError("Failed to load terms and conditions.");
-            })
-            .finally(() => {
-              setLoading(false);
+      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        chrome.scripting.executeScript({
+          target: { tabId: tabs[0].id },
+          files: ["termsScraper.js"]
+        }, () => {
+          console.log("✅ termsScraper.js injected");
+
+          setTimeout(() => {
+            chrome.storage.local.get(["termsText", "company", "url"], (result) => {
+              if (result.termsText?.trim()) {
+                fetchData(result.termsText, result.company || "unknown")
+                  .then(data => {
+                    setTermsText(data.data);
+                    setCompanyName(result.company || "unknown");
+                    setUrl(result.url);
+                    console.log("✅ Got URL:", result.url);
+                  })
+                  .catch(err => {
+                    console.error("Error fetching data:", err);
+                    setError("Failed to load terms and conditions.");
+                  })
+                  .finally(() => {
+                    setLoading(false);
+                  });
+              } else {
+                setTermsText("No terms and conditions found on this page.");
+                setCompanyName(result.company || "Unknown");
+                setUrl("https://www.google.com");
+                setLoading(false);
+              }
             });
-        } else {
-          setTermsText("No terms and conditions found on this page.");
-          setCompanyName(result.company || "Unknown");
-          setLoading(false);
-        }
+          }, 300);
+        });
       });
     }
   }, []);
 
   useEffect(() => {
     if (termsText && termsText !== "Loading...") {
-        let risk = 0;
+      let risk = 0;
+      for (const [key, value] of Object.entries(termsText)) {
+        risk += value.risk_score * 2;
+      }
+      setRiskScore(risk);
 
-        for (const [key, value] of Object.entries(termsText)) {
-            risk += value.risk_score * 2;
-        }
-        setRiskScore(risk);
-
-        chrome.runtime.sendMessage({
-            type: "SET_BADGE",
-            text: '!',
-            color: assign_color(risk)
-        });
+      chrome.runtime.sendMessage({
+        type: "SET_BADGE",
+        text: "!",
+        color: assign_color(risk)
+      });
     }
   }, [termsText]);
 
   if (isReportPage) {
-    return <FullSummary risk_score={riskScore ?? 0} termsText={termsText} companyName={companyName}/>;
+    return (
+      <FullSummary
+        risk_score={riskScore ?? 0}
+        termsText={termsText}
+        companyName={companyName}
+        url={url}
+      />
+    );
   }
 
   if (error) {
@@ -182,7 +183,6 @@ const App = () => {
         <button
           onClick={() => {
             setShowPopup(true);
-            console.log("Paste T&C Link");
           }}
           style={{
             backgroundColor: colorMap[assign_color(riskScore ?? 0)],
@@ -200,7 +200,6 @@ const App = () => {
 
         <button
           onClick={() => {
-            console.log("View Full Report");
             chrome.tabs.create({ url: chrome.runtime.getURL("report.html") });
           }}
           style={{
@@ -216,7 +215,7 @@ const App = () => {
         >
           View Full Report
         </button>
-        
+
         {showPopup && (
           <Popup
             inputText={inputText}
@@ -225,23 +224,19 @@ const App = () => {
             setRatingValue={setRatingValue}
             onClose={() => setShowPopup(false)}
             onSubmit={() => {
-                submitReview(inputText, ratingValue, companyName)
+              submitReview(inputText, ratingValue, companyName)
                 .then(data => {
-                    if (data) {
-                        console.log("Review submitted:", inputText);
-                        setReviewed(true);
-                    }
+                  if (data) {
+                    setReviewed(true);
+                  }
                 })
                 .catch(err => {
-                    console.error("Error submitting review:", err);
-                })
-                .finally(() => {
+                  console.error("Error submitting review:", err);
                 });
             }}
             reviewed={reviewed}
           />
         )}
-
       </div>
     </div>
   );
