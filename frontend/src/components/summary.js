@@ -28,6 +28,11 @@ const SummaryBox = ({ termsText, bgColor }) => {
       keys: ["renewal_of_service"],
       maxScore: 10,
     },
+    {
+        title: "Data Deletion",
+        keys: ["data_after_deletion"],
+        maxScore: 10,
+    }
   ];
 
   const renderItem = (item) => <li>{item.explanation}</li>;

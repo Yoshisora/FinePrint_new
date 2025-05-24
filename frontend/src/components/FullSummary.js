@@ -46,6 +46,11 @@ const FullSummary = ({ risk_score, termsText, companyName, url }) => {
       keys: ["renewal_of_service"],
       maxScore: 10,
     },
+    {
+        title: "Data Deletion",
+        keys: ["data_after_deletion"],
+        maxScore: 10,
+    }
   ];
 
   const renderItem = (item) => (

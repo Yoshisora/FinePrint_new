@@ -34,6 +34,7 @@ class _RiskInfo(pydantic.BaseModel):
     renewal_of_service: _RiskItem
     limited_liability: _RiskItem
     suspension_of_service: _RiskItem
+    data_after_deletion: _RiskItem
 
 
 if __name__ == '__main__': 
